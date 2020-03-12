@@ -1,6 +1,6 @@
 from django.db import models
-from orders.models import Order
 from django.core.validators import MaxValueValidator, MinValueValidator
+from orders.models import Order
 
 class Sale(models.Model):
     name = models.CharField(max_length=150)
@@ -38,7 +38,8 @@ class Product(models.Model):
     sale = models.ManyToManyField(Sale, verbose_name='Скидка', related_name='sale', blank=True)
     category = models.ManyToManyField(Category, verbose_name='Категория', related_name='category', blank=True)
     attribute = models.ManyToManyField(Attribute, verbose_name='Характеристика', related_name='attribute', through='ProductAttribute')
-    order = models.ManyToManyField(Order, verbose_name='Заказ', through='ProductOrder')
+    order = models.ManyToManyField(Order, verbose_name='Заказ', related_name='order', through='Cart')
+
 
     def __str__(self):
         return self.name
@@ -50,12 +51,14 @@ class ProductAttribute(models.Model):
     value = models.CharField(max_length=255)
 
     def __str__(self):
-        return self.product.name + ' : ' + self.attribute.name + ' ' + self.value
+        return self.product.name + ' : ' + self.attribute.name + ' - ' + self.value
 
-class ProductOrder(models.Model):
+class Cart(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
-    order = models.ForeignKey(Order, null=True ,on_delete=models.CASCADE)
-    status = models.BooleanField(default=True, verbose_name='Статус')
-    quantity = models.PositiveIntegerField(default=1, verbose_name='Количество')
-    price = models.FloatField(validators=[MinValueValidator(0.0)], verbose_name='Цена')
+    order = models.ForeignKey(Order, on_delete=models.SET_NULL, null=True)
+    quantity = models.IntegerField(default=1)
+    total_price = models.IntegerField(default=0)
 
+    def __str__(self):
+        return f'order id {self.order.id} --- product {self.product.name} amount {str(self.quantity)}' 
+ 
