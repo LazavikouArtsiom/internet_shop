@@ -31,9 +31,3 @@ class ProductSerializer(serializers.ModelSerializer):
         fields = ['id','name','price','sale',
                   'manufacturer', 'category']
 
-class ProductSaleSerializer(serializers.ModelSerializer):
-    sale = SaleSerializer(many=True, read_only=True)
-
-    class Meta:
-        model = Product
-        fields = ['sale']
