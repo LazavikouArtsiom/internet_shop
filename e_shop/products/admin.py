@@ -7,4 +7,6 @@ admin.site.register(Category)
 admin.site.register(Attribute)
 admin.site.register(ProductAttribute)
 admin.site.register(Manufacturer)
+admin.site.register(CartItems)
 admin.site.register(Cart)
+

@@ -1,6 +1,6 @@
 from django.db import models
 from django.core.validators import MaxValueValidator, MinValueValidator
-from orders.models import Order
+from orders.models import Cart
 
 class Sale(models.Model):
     name = models.CharField(max_length=150)
@@ -38,7 +38,7 @@ class Product(models.Model):
     sale = models.ManyToManyField(Sale, verbose_name='Скидка', related_name='sale', blank=True)
     category = models.ManyToManyField(Category, verbose_name='Категория', related_name='category', blank=True)
     attribute = models.ManyToManyField(Attribute, verbose_name='Характеристика', related_name='attribute', through='ProductAttribute')
-    order = models.ManyToManyField(Order, verbose_name='Заказ', related_name='order', through='Cart')
+    cart = models.ManyToManyField(Cart, verbose_name='Заказ', related_name='корзина', through='CartItems')
 
 
     def __str__(self):
@@ -53,12 +53,12 @@ class ProductAttribute(models.Model):
     def __str__(self):
         return self.product.name + ' : ' + self.attribute.name + ' - ' + self.value
 
-class Cart(models.Model):
+class CartItems(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
-    order = models.ForeignKey(Order, on_delete=models.SET_NULL, null=True)
+    cart = models.ForeignKey(Cart, on_delete=models.SET_NULL, null=True)
     quantity = models.IntegerField(default=1)
     total_price = models.IntegerField(default=0)
 
     def __str__(self):
-        return f'order id {self.order.id} --- product {self.product.name} amount {str(self.quantity)}' 
+        return f'Cart id {self.cart.id} --- product {self.product.name} amount {str(self.quantity)}' 
  
