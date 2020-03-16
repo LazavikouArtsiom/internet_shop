@@ -65,8 +65,6 @@ class User(AbstractBaseUser, PermissionsMixin):
     def get_user_email(self):
         return self.email
 
-
-
 class Profile(models.Model):
 
     user = models.OneToOneField(User, on_delete=models.CASCADE)
