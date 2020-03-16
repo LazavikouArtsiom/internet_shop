@@ -35,11 +35,11 @@ class Product(models.Model):
     name = models.CharField(max_length=255, verbose_name='Название продукта')
     price = models.FloatField(validators=[MinValueValidator(0.0)], verbose_name='Цена')
     manufacturer = models.ForeignKey(Manufacturer, null=True, on_delete=models.SET_NULL)
-    sale = models.ManyToManyField(Sale, verbose_name='Скидка', related_name='sale', blank=True)
+    sales = models.ManyToManyField(Sale, verbose_name='Скидка', related_name='sale', blank=True)
     category = models.ForeignKey(Category, verbose_name='Категория', related_name='category', null=True, on_delete=models.SET_NULL)
     attributes = models.ManyToManyField(Attribute, verbose_name='Характеристика', related_name='attribute', through='ProductAttribute')
-    picture = models.CharField(max_length=500)
-    cart = models.ManyToManyField(Cart, verbose_name='Заказ', related_name='корзина', through='CartItems')
+    picture = models.CharField(max_length=500, verbose_name='Картинка')
+    carts = models.ManyToManyField(Cart, verbose_name='Заказ', related_name='корзина', through='CartItems')
 
     def __str__(self):
         return self.name
