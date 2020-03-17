@@ -8,7 +8,7 @@ class Sale(models.Model):
     percent = models.IntegerField(verbose_name='Процент')
     
     def __str__(self):
-        return str(self.percent)
+        return self.name + ' ' + str(self.percent)
 
 class Manufacturer(models.Model):
     name = models.CharField(max_length=255, verbose_name='Производитель', null=True)
@@ -39,11 +39,10 @@ class Product(models.Model):
     category = models.ForeignKey(Category, verbose_name='Категория', related_name='category', null=True, on_delete=models.SET_NULL)
     attributes = models.ManyToManyField(Attribute, verbose_name='Характеристика', related_name='attribute', through='ProductAttribute')
     picture = models.CharField(max_length=500, verbose_name='Картинка')
-    carts = models.ManyToManyField(Cart, verbose_name='Заказ', related_name='корзина', through='CartItems')
+    carts = models.ManyToManyField(Cart, verbose_name='Заказ', related_name='cart', through='CartItems')
 
     def __str__(self):
         return self.name
-
 
 class ProductAttribute(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
