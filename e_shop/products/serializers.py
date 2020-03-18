@@ -4,7 +4,7 @@ from .models import Sale, Category, Attribute, Manufacturer, Product
 class SaleSerializer(serializers.ModelSerializer):
     class Meta:
         model = Sale
-        fields = ['name','procent']
+        fields = ['name','percent']
 
 class CategorySerializer(serializers.ModelSerializer):
     class Meta:
@@ -31,4 +31,3 @@ class ProductSerializer(serializers.ModelSerializer):
         model = Product
         fields = ['id','name','price','sale',
                   'manufacturer', 'category', 'attributes']
-

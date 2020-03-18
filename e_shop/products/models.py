@@ -6,40 +6,99 @@ class Sale(models.Model):
     name = models.CharField(max_length=150)
     description = models.CharField(max_length=255)
     percent = models.IntegerField(verbose_name='Процент')
-    
+
+    class Meta:
+        ordering = ('name', 'percent')
+        verbose_name = 'Скидка'
+        verbose_name_plural = 'Скидки'
+
     def __str__(self):
         return self.name + ' ' + str(self.percent)
 
 class Manufacturer(models.Model):
-    name = models.CharField(max_length=255, verbose_name='Производитель', null=True)
-    country = models.CharField(max_length=150, verbose_name='Страна производитель', null=True)
+    name = models.CharField(max_length=255, verbose_name='Производитель', null=True, blank=True)
+    country = models.CharField(max_length=150, verbose_name='Страна производитель', null=True, blank=True)
+
+    class Meta:
+        ordering = ('name','country')
+        verbose_name = 'Производитель'
+        verbose_name_plural = 'Производители'
 
     def __str__(self):
         return self.name
 
 class Attribute(models.Model):
-    name = models.CharField(max_length=255, verbose_name='Атрибут' , null=True)
+    name = models.CharField(max_length=255, null=True, blank=True)
     
+    class Meta:
+        ordering = ('name',)
+        verbose_name = 'Характеристика'
+        verbose_name_plural = 'Характеристики'
+
     def __str__(self):
         return self.name
+
 
 class Category(models.Model):
-    name = models.CharField(max_length=255, verbose_name='Категория')
-    parental_category = models.ManyToManyField('self', blank=True, verbose_name='Категория-родитель')
+    name = models.CharField(max_length=255)
+    slug = models.SlugField(max_length=255, db_index=True)
+    parental_category = models.ManyToManyField('self', 
+                                                blank=True,
+                                                verbose_name='Категория-родитель',
+                                                )
+    
+    class Meta:
+        ordering = ('name',)
+        verbose_name = 'Категория'
+        verbose_name_plural = 'Категории'
 
     def __str__(self):
         return self.name
+    
+
 
 
 class Product(models.Model):
-    name = models.CharField(max_length=255, verbose_name='Название продукта')
-    price = models.FloatField(validators=[MinValueValidator(0.0)], verbose_name='Цена')
-    manufacturer = models.ForeignKey(Manufacturer, null=True, on_delete=models.SET_NULL)
-    sales = models.ManyToManyField(Sale, verbose_name='Скидка', related_name='sale', blank=True)
-    category = models.ForeignKey(Category, verbose_name='Категория', related_name='category', null=True, on_delete=models.SET_NULL)
-    attributes = models.ManyToManyField(Attribute, verbose_name='Характеристика', related_name='attribute', through='ProductAttribute')
-    picture = models.CharField(max_length=500, verbose_name='Картинка')
-    carts = models.ManyToManyField(Cart, verbose_name='Заказ', related_name='cart', through='CartItems')
+    name = models.CharField(max_length=150, db_index=True,
+                            verbose_name='Название')
+    slug = models.SlugField(max_length=150, db_index=True)
+    price = models.DecimalField(max_digits=10, decimal_places=2, 
+                                verbose_name='Цена')
+    category = models.ForeignKey(Category, 
+                                 related_name='category',
+                                 null=True,
+                                 blank=True,
+                                 verbose_name='Категория',
+                                 on_delete=models.SET_NULL,
+                                 )
+    manufacturer = models.ForeignKey(Manufacturer,
+                                     related_name='manufacturer', 
+                                     null=True,
+                                     blank=True,
+                                     verbose_name='Производитель',
+                                     on_delete=models.SET_NULL)
+    sales = models.ManyToManyField(Sale, 
+                                   related_name='sales',
+                                   verbose_name='Скидка',
+                                   )
+    attributes = models.ManyToManyField(Attribute, 
+                                        related_name='attributes', 
+                                        through='ProductAttribute')
+    carts = models.ManyToManyField(Cart, 
+                                   related_name='carts', 
+                                   through='CartItems')
+    image = models.CharField(max_length=255, blank=True, 
+                             verbose_name='Картинка')
+    available = models.BooleanField(default=True, verbose_name='В наличии')
+    stock = models.PositiveIntegerField(verbose_name='На складе')
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name='Создан')
+    updated_at = models.DateTimeField(auto_now=True, verbose_name='Обновлён')
+
+    class Meta:
+        ordering = ('name', 'created_at',)
+        index_together = ('id', 'slug')
+        verbose_name = 'Товар'
+        verbose_name_plural = 'Товары'
 
     def __str__(self):
         return self.name
