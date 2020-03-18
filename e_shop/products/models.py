@@ -107,6 +107,9 @@ class ProductAttribute(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
     attribute = models.ForeignKey(Attribute, null=True ,on_delete=models.SET_NULL)
     value = models.CharField(max_length=255)
+    
+    class Meta:
+        verbose_name = 'Продукт - Характеристика'
 
     def __str__(self):
         return self.product.name + ' : ' + self.attribute.name + ' - ' + self.value

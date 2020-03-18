@@ -3,9 +3,26 @@ from .models import (Product, Sale, Category,
                     Attribute, ProductAttribute, Manufacturer,
                     CartItems)
 
-admin.site.register(Product)
+class ProductAdmin(admin.ModelAdmin):
+    list_display = ['name', 'slug', 'price',\
+                    'stock', 'available', 'created_at', 'updated_at']
+    list_filter = ['available', 'created_at', 'updated_at']
+    list_editable = ['price', 'stock', 'available']
+    prepopulated_fields = {'slug' : ('name',)}
+    list_per_page = 30
+    ordering = ['price', 'name']
+    search_fields = ['name']
+
+admin.site.register(Product, ProductAdmin)
+
+class CategoryAdmin(admin.ModelAdmin):
+    list_display = ['name', 'slug']
+    list_editable = ['slug',]
+    prepopulated_fields = {'slug': ('name',)}
+
+admin.site.register(Category, CategoryAdmin)
+
 admin.site.register(Sale)
-admin.site.register(Category)
 admin.site.register(Attribute)
 admin.site.register(ProductAttribute)
 admin.site.register(Manufacturer)
