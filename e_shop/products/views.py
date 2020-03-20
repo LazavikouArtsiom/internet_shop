@@ -1,4 +1,5 @@
 from django.shortcuts import render
+from django.http import Http404
 from .models import Sale, Product
 from rest_framework import viewsets
 from rest_framework.decorators import action
@@ -40,8 +41,9 @@ class ProductList(ListAPIView):
     serializer_class = ProductSerializer
 
     def get_queryset(self):
-        queryset = Product.objects.all()
         category = self.kwargs['category_slug']
         if category is not None:
-            queryset = queryset.filter(category__slug=category)
-        return queryset
+            queryset = Product.objects.select_related('category').filter(category__slug=category)
+            if queryset:
+                return queryset
+        raise Http404
