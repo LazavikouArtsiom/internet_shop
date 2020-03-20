@@ -42,10 +42,13 @@ class Attribute(models.Model):
 class Category(models.Model):
     name = models.CharField(max_length=255)
     slug = models.SlugField(max_length=255, db_index=True)
-    parental_category = models.ManyToManyField('self', 
-                                                blank=True,
-                                                verbose_name='Категория-родитель',
-                                                )
+    parental_category = models.ForeignKey('self', 
+                                          on_delete=models.SET_NULL,
+                                          blank=True,
+                                          null=True,
+                                          verbose_name='Категория-родитель',
+                                          related_name='parent'
+                                          )
     
     class Meta:
         ordering = ('name',)
@@ -55,9 +58,7 @@ class Category(models.Model):
     def __str__(self):
         return self.name
     
-
-
-
+    
 class Product(models.Model):
     name = models.CharField(max_length=150, db_index=True,
                             verbose_name='Название')
@@ -69,7 +70,7 @@ class Product(models.Model):
                                  null=True,
                                  blank=True,
                                  verbose_name='Категория',
-                                 on_delete=models.SET_NULL,
+                                 on_delete=models.CASCADE,
                                  )
     manufacturer = models.ForeignKey(Manufacturer,
                                      related_name='manufacturer', 
@@ -80,6 +81,7 @@ class Product(models.Model):
     sales = models.ManyToManyField(Sale, 
                                    related_name='sales',
                                    verbose_name='Скидка',
+                                   blank=True
                                    )
     attributes = models.ManyToManyField(Attribute, 
                                         related_name='attributes', 

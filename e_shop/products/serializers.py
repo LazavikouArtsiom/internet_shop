@@ -23,11 +23,11 @@ class ManufacturerSerializer(serializers.ModelSerializer):
 
 class ProductSerializer(serializers.ModelSerializer):
     manufacturer = ManufacturerSerializer(many=True, read_only=True)
-    category = CategorySerializer(many=True, read_only=True)
+    category = CategorySerializer(read_only=True)
     sale = SaleSerializer(many=True, read_only=True)
     attributes = AttributeSerializer(many=True, read_only=True)
 
     class Meta:
         model = Product
-        fields = ['id','name','price','sale',
+        fields = ['id','name', 'price','sale',
                   'manufacturer', 'category', 'attributes']

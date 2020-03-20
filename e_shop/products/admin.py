@@ -8,10 +8,10 @@ class ProductAdmin(admin.ModelAdmin):
                     'stock', 'available', 'created_at', 'updated_at']
     list_filter = ['available', 'created_at', 'updated_at']
     list_editable = ['price', 'stock', 'available']
-    prepopulated_fields = {'slug' : ('name',)}
     list_per_page = 30
     ordering = ['price', 'name']
     search_fields = ['name']
+    prepopulated_fields = {'slug' : ('name',)}
 
 admin.site.register(Product, ProductAdmin)
 

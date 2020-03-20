@@ -1,13 +1,10 @@
-from django.shortcuts import render, get_list_or_404, get_object_or_404
-from .models import Sale, Product, Category
+from django.shortcuts import render
+from .models import Sale, Product
 from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAdminUser, AllowAny
-from .serializers import SaleSerializer
-from django.forms.models import model_to_dict
-from django.http import JsonResponse
 from rest_framework.generics import ListAPIView
-
+from .serializers import SaleSerializer, ProductSerializer
 
 class SalesViewSet(viewsets.ModelViewSet):
     queryset = Sale.objects.all()
@@ -29,10 +26,22 @@ class SalesViewSet(viewsets.ModelViewSet):
             permission_classes = [IsAdminUser] 
         return [permission() for permission in permission_classes]
 
-class ProductListAPIView(ListAPIView):
+#class ProductList(ListAPIView):
+#    serializer_class = ProductSerializer(queryset, many=True)
 
-    def get(self, request, category_slug=None):
-        if category_slug:
-            category = get_object_or_404(Category, slug=category_slug)
-            products = get_list_or_404(Product, category=category)
-        return products
+#    def get_queryset(self, **kwargs):
+#        queryset = Product.objects.all()
+#        category = self.kwargs['category_slug']
+#        if category is not None:
+#            queryset = Product.objects.filter(category__slug=category)
+#        return queryset
+
+class ProductList(ListAPIView):
+    serializer_class = ProductSerializer
+
+    def get_queryset(self):
+        queryset = Product.objects.all()
+        category = self.kwargs['category_slug']
+        if category is not None:
+            queryset = queryset.filter(category__slug=category)
+        return queryset
