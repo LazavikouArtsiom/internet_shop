@@ -105,6 +105,8 @@ class Product(models.Model):
     def __str__(self):
         return self.name
 
+    #IMPLEMENT get_absolute_url
+
 class ProductAttribute(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
     attribute = models.ForeignKey(Attribute, null=True ,on_delete=models.SET_NULL)

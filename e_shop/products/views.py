@@ -4,8 +4,9 @@ from .models import Sale, Product
 from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAdminUser, AllowAny
-from rest_framework.generics import ListAPIView
+from rest_framework.generics import ListAPIView, RetrieveAPIView
 from .serializers import SaleSerializer, ProductSerializer
+from django.db.models import Q
 
 class SalesViewSet(viewsets.ModelViewSet):
     queryset = Sale.objects.all()
@@ -27,23 +28,22 @@ class SalesViewSet(viewsets.ModelViewSet):
             permission_classes = [IsAdminUser] 
         return [permission() for permission in permission_classes]
 
-#class ProductList(ListAPIView):
-#    serializer_class = ProductSerializer(queryset, many=True)
-
-#    def get_queryset(self, **kwargs):
-#        queryset = Product.objects.all()
-#        category = self.kwargs['category_slug']
-#        if category is not None:
-#            queryset = Product.objects.filter(category__slug=category)
-#        return queryset
-
 class ProductList(ListAPIView):
     serializer_class = ProductSerializer
 
     def get_queryset(self):
         category = self.kwargs['category_slug']
         if category is not None:
-            queryset = Product.objects.select_related('category').filter(category__slug=category)
-            if queryset:
-                return queryset
+            return Product.objects.select_related('category').filter(category__slug=category).order_by('-price')
+        raise Http404
+
+class ProductDetail(RetrieveAPIView):
+    serializer_class = ProductSerializer
+    lookup_field = 'slug' 
+
+    def get_queryset(self):
+        category = self.kwargs['category_slug']
+        product = self.kwargs['slug']
+        if product and category:
+            return Product.objects.filter(slug=product, category__slug=category)
         raise Http404

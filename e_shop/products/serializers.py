@@ -31,3 +31,5 @@ class ProductSerializer(serializers.ModelSerializer):
         model = Product
         fields = ['id','name', 'price','sale',
                   'manufacturer', 'category', 'attributes']
+        lookup_field = 'slug'
+        
