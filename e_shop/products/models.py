@@ -1,6 +1,9 @@
 from django.db import models
 from django.core.validators import MaxValueValidator, MinValueValidator
 from orders.models import Cart
+from django.urls import reverse
+from datetime import timedelta
+from django.utils.timezone import now
 
 class Sale(models.Model):
     name = models.CharField(max_length=150)
@@ -13,7 +16,7 @@ class Sale(models.Model):
         verbose_name_plural = 'Скидки'
 
     def __str__(self):
-        return self.name + ' ' + str(self.percent)
+        return self.name
 
 class Manufacturer(models.Model):
     name = models.CharField(max_length=255, verbose_name='Производитель', null=True, blank=True)
@@ -57,12 +60,12 @@ class Category(models.Model):
 
     def __str__(self):
         return self.name
-    
+
     
 class Product(models.Model):
     name = models.CharField(max_length=150, db_index=True,
                             verbose_name='Название')
-    slug = models.SlugField(max_length=150, db_index=True)
+    slug = models.SlugField(max_length=150, db_index=True, unique=True)
     price = models.DecimalField(max_digits=10, decimal_places=2, 
                                 verbose_name='Цена')
     category = models.ForeignKey(Category, 
@@ -95,17 +98,30 @@ class Product(models.Model):
     stock = models.PositiveIntegerField(verbose_name='На складе')
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='Создан')
     updated_at = models.DateTimeField(auto_now=True, verbose_name='Обновлён')
+    recomended = models.BooleanField(default=False, verbose_name='рекомендуем')
+    new = models.BooleanField(default=True, verbose_name='новый')
+
 
     class Meta:
         ordering = ('name', 'created_at',)
         index_together = ('id', 'slug')
         verbose_name = 'Товар'
         verbose_name_plural = 'Товары'
+    
+    def is_recomended(self):
+        return self.recomended
+
+    def is_new(self):
+        if not self.new and (now() - self.created_at <= timedelta(days=3)):    
+            self.new = True
+        else:
+            return self.new
 
     def __str__(self):
         return self.name
 
-    #IMPLEMENT get_absolute_url
+    def get_absolute_url(self):
+        return(f'/{self.category.slug}/{self.slug}/')
 
 class ProductAttribute(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
@@ -117,6 +133,7 @@ class ProductAttribute(models.Model):
 
     def __str__(self):
         return self.product.name + ' : ' + self.attribute.name + ' - ' + self.value
+
 
 class CartItems(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE)

@@ -5,36 +5,35 @@ from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAdminUser, AllowAny
 from rest_framework.generics import ListAPIView, RetrieveAPIView
-from .serializers import SaleSerializer, ProductSerializer
+from .serializers import SaleSerializer, ProductSerializer, ProductFilter
 from django.db.models import Q
+ 
 
-class SalesViewSet(viewsets.ModelViewSet):
-    queryset = Sale.objects.all()
-    serializer_class = SaleSerializer
-    lookup_field = 'pk'
+class ProductsBySales(ListAPIView):
+    serializer_class = ProductSerializer
+    filterset_fields = ['category']
 
-    def get_permissions(self):
+    def get_queryset(self):
+        return (Product.
+                objects.
+                prefetch_related('sales', 'attributes').
+                select_related('category', 'manufacturer',).
+                exclude(sales=None)
+                )
 
-        permission_classes = []
-        if self.action == 'create':
-            permission_classes = [IsAdminUser]
-        elif self.action == 'list':
-            permission_classes = [AllowAny]
-        elif self.action == 'retrieve':
-            permission_classes = [AllowAny]
-        elif self.action == 'update' or self.action == 'partial_update':
-            permission_classes = [IsAdminUser]
-        elif self.action == 'destroy':
-            permission_classes = [IsAdminUser] 
-        return [permission() for permission in permission_classes]
 
 class ProductList(ListAPIView):
     serializer_class = ProductSerializer
+    filterset_class = ProductFilter
 
     def get_queryset(self):
         category = self.kwargs['category_slug']
         if category is not None:
-            return Product.objects.select_related('category').filter(category__slug=category).order_by('-price')
+            return (Product.
+                    objects.
+                    prefetch_related('category', 'attributes').
+                    filter(category__slug=category)
+                    )   
         raise Http404
 
 class ProductDetail(RetrieveAPIView):
@@ -45,5 +44,9 @@ class ProductDetail(RetrieveAPIView):
         category = self.kwargs['category_slug']
         product = self.kwargs['slug']
         if product and category:
-            return Product.objects.filter(slug=product, category__slug=category)
+            return (Product.
+                    objects.
+                    select_related('category').
+                    prefetch_related('attributes').
+                    filter(category__slug=category))
         raise Http404

@@ -1,10 +1,11 @@
 from rest_framework import serializers
 from .models import Sale, Category, Attribute, Manufacturer, Product
+import django_filters
 
 class SaleSerializer(serializers.ModelSerializer):
     class Meta:
         model = Sale
-        fields = ['name','percent']
+        fields = ['name', 'percent']
 
 class CategorySerializer(serializers.ModelSerializer):
     class Meta:
@@ -22,14 +23,25 @@ class ManufacturerSerializer(serializers.ModelSerializer):
         fields = ['name', 'country']
 
 class ProductSerializer(serializers.ModelSerializer):
-    manufacturer = ManufacturerSerializer(many=True, read_only=True)
+    manufacturer = ManufacturerSerializer(read_only=True)
     category = CategorySerializer(read_only=True)
-    sale = SaleSerializer(many=True, read_only=True)
+    sales = SaleSerializer(many=True, read_only=True)
     attributes = AttributeSerializer(many=True, read_only=True)
 
     class Meta:
         model = Product
-        fields = ['id','name', 'price','sale',
-                  'manufacturer', 'category', 'attributes']
-        lookup_field = 'slug'
+        fields = ['slug', 'name', 'price', 'sales',
+                  'manufacturer', 'category', 'attributes',
+                  'is_new', 'is_recomended']
+        
+        lookup_field = 'slug'        
+
+class ProductFilter(django_filters.FilterSet):
+    def __init__(self, *args, **kwargs):
+        super(ProductFilter, self).__init__(*args, **kwargs)
+    class Meta:
+        model = Product
+        fields = {'name': ['exact', 'icontains'],
+                  'price': ['exact', 'gte', 'lte'],
+                 }
         

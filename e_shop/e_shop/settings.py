@@ -33,6 +33,7 @@ INSTALLED_APPS = [
     'orders',
     'django_extensions',
     'debug_toolbar',
+    'django_filters',
 
 ]
 
@@ -75,6 +76,9 @@ WSGI_APPLICATION = 'e_shop.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
 
+REST_FRAMEWORK = {
+    'DEFAULT_FILTER_BACKENDS': ('django_filters.rest_framework.DjangoFilterBackend',)
+}
 
 DATABASES = {
     'default': {

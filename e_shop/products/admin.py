@@ -5,7 +5,8 @@ from .models import (Product, Sale, Category,
 
 class ProductAdmin(admin.ModelAdmin):
     list_display = ['name', 'slug', 'price',\
-                    'stock', 'available', 'created_at', 'updated_at']
+                    'stock', 'available', 'created_at'\
+                    ,'updated_at', 'new', 'recomended']
     list_filter = ['available', 'created_at', 'updated_at']
     list_editable = ['price', 'stock', 'available']
     list_per_page = 30
